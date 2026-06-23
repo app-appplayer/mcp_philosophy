@@ -99,7 +99,7 @@ class PhilosophyEvaluator {
       final contentLower = contentToCheck.toLowerCase();
 
       final potentiallyViolated = _detectViolation(
-        prohibition.statement,
+        prohibition,
         contentLower,
         context,
       );
@@ -307,11 +307,26 @@ class PhilosophyEvaluator {
   }
 
   bool _detectViolation(
-    String prohibitionStatement,
+    Prohibition prohibition,
     String contentLower,
     PhilosophyEvaluationContext context,
   ) {
-    final statementLower = prohibitionStatement.toLowerCase();
+    // Deterministic, LLM-free enforcement: any declared forbidden pattern
+    // present (case-insensitive) in the content is a violation. This is the
+    // sound path for arbitrary prohibitions — the engine cannot semantically
+    // judge the NL `statement` (that needs an LLM seam), so an author / LLM
+    // declares the concrete strings that must never appear.
+    for (final pattern in prohibition.forbiddenPatterns) {
+      if (pattern.isNotEmpty && contentLower.contains(pattern.toLowerCase())) {
+        return true;
+      }
+    }
+
+    // Built-in NL heuristics — best-effort for two well-known statement
+    // shapes only. A statement outside these (and with no forbiddenPatterns)
+    // is NOT a sound structural verdict; semantic judgment is deferred to an
+    // LLM seam (see spec 12 §3).
+    final statementLower = prohibition.statement.toLowerCase();
 
     if (statementLower.contains('uncertain') &&
         statementLower.contains('certain')) {

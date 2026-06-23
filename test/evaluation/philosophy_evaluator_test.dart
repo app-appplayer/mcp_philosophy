@@ -129,6 +129,54 @@ void main() {
         expect(check.exceptionApplied, isTrue);
         expect(check.violated, isFalse);
       });
+
+      test('forbiddenPatterns deterministically flags a hard violation', () {
+        // A prohibition whose NL statement matches NO built-in heuristic —
+        // previously this fell open (the unsound 2-pattern gap). With
+        // forbiddenPatterns it is now enforced deterministically.
+        final prohibitions = [
+          testProhibition(
+            id: 'no-xyzzy',
+            statement: 'Never reveal the magic word',
+            forbiddenPatterns: const ['xyzzy'],
+          ),
+        ];
+        final context = testContext(
+          proposedOutput: 'the answer is XYZZY, do not tell anyone',
+        );
+        final result = evaluator.checkProhibitions(prohibitions, context);
+        expect(result.hasHardViolation, isTrue);
+        expect(result.hardViolationIds, contains('no-xyzzy'));
+      });
+
+      test('forbiddenPatterns: no match → not violated (no false positive)',
+          () {
+        final prohibitions = [
+          testProhibition(
+            id: 'no-xyzzy',
+            statement: 'Never reveal the magic word',
+            forbiddenPatterns: const ['xyzzy'],
+          ),
+        ];
+        final context = testContext(proposedOutput: 'a perfectly clean answer');
+        final result = evaluator.checkProhibitions(prohibitions, context);
+        expect(result.hasHardViolation, isFalse);
+      });
+
+      test('forbiddenPatterns honors soft severity (warning, not block)', () {
+        final prohibitions = [
+          testProhibition(
+            id: 'soft-term',
+            statement: 'Avoid the deprecated term',
+            severity: ProhibitionSeverity.soft,
+            forbiddenPatterns: const ['foobar'],
+          ),
+        ];
+        final context = testContext(proposedOutput: 'use FOOBAR here');
+        final result = evaluator.checkProhibitions(prohibitions, context);
+        expect(result.hasHardViolation, isFalse);
+        expect(result.softViolationIds, contains('soft-term'));
+      });
     });
 
     group('matchCriteria', () {

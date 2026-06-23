@@ -34,6 +34,7 @@ Prohibition testProhibition({
   String statement = 'Never present uncertain information as certain',
   ProhibitionSeverity severity = ProhibitionSeverity.hard,
   List<ProhibitionException>? exceptions,
+  List<String> forbiddenPatterns = const [],
 }) =>
     Prohibition(
       id: id,
@@ -41,6 +42,7 @@ Prohibition testProhibition({
       severity: severity,
       rationale: 'Test rationale',
       exceptions: exceptions,
+      forbiddenPatterns: forbiddenPatterns,
     );
 
 JudgmentCriterion testCriterion({

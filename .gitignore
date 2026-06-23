@@ -4,6 +4,7 @@
 .DS_Store
 
 pubspec.lock
+pubspec_overrides.yaml
 
 # Build / coverage outputs
 build/
