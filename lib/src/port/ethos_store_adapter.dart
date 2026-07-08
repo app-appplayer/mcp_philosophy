@@ -7,7 +7,7 @@ import 'package:mcp_bundle/mcp_bundle.dart';
 /// The reserved key is excluded from [listEthos] results.
 ///
 /// REDESIGN-PLAN.md Phase 6 — see DDD `core-port.md` §3.4.
-class KvEthosStoreAdapter implements EthosStorePort {
+class KvEthosStoreAdapter implements EthosStorePort, EthosStoreDelete {
   static const String _activeMarker = '__active__';
 
   final KvStoragePort _storage;
@@ -69,6 +69,17 @@ class KvEthosStoreAdapter implements EthosStorePort {
     final raw = await _storage.get(_activeKey);
     if (raw == null) return null;
     return raw as String;
+  }
+
+  @override
+  Future<void> deleteEthos(String id) async {
+    // Idempotent: removing an absent key is a no-op at the storage layer.
+    await _storage.remove(_recordKey(id));
+    // If the deleted ethos was the active one, clear the active pointer so
+    // getActiveEthosId returns null (no implicit succession).
+    if (await getActiveEthosId() == id) {
+      await _storage.remove(_activeKey);
+    }
   }
 
   // Encoding helpers — EthosRecord (mcp_bundle) does not declare toJson.

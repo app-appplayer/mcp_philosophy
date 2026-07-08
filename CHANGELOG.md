@@ -1,3 +1,11 @@
+## [0.1.3] - 2026-07-09 - KvEthosStoreAdapter implements EthosStoreDelete
+
+### Added
+- **`KvEthosStoreAdapter` now also implements `EthosStoreDelete`** (mcp_bundle 0.4.6): `deleteEthos(id)` removes the record key and, when the deleted id was the active ethos, clears the active pointer (`getActiveEthosId` → null; no implicit succession). Idempotent — deleting an absent id is a no-op. Additive — the adapter's `EthosStorePort` surface is unchanged.
+
+### Changed (dependency floor)
+- `mcp_bundle` floor raised to `^0.4.6` (requires the `EthosStoreDelete` capability interface).
+
 ## [0.1.2] - 2026-06-23 - deterministic prohibition enforcement (forbiddenPatterns)
 
 ### Changed
