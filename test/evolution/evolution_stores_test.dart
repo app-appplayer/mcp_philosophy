@@ -179,6 +179,22 @@ void main() {
       expect((await store.recent()).map((e) => e.id), ['e2', 'e3']);
     });
 
+    test('an event dated before the epoch is stored and ordered first (Kv)',
+        () async {
+      final store = KvFeedbackHistoryStore(storage: InMemoryKvStoragePort());
+      await store.append(fb('now', 5));
+      await store.append(FeedbackEvent(
+        id: 'old',
+        actionId: 'a',
+        ethosId: 'e',
+        valuePriorityId: 'vp-1',
+        outcome: FeedbackOutcome.positive,
+        outcomeScore: 0.9,
+        occurredAt: DateTime.utc(1960),
+      ));
+      expect((await store.recent()).map((e) => e.id), ['old', 'now']);
+    });
+
     test('keys that are not time-shaped are ignored (Kv)', () async {
       final kv = InMemoryKvStoragePort();
       await kv.set('philosophy.feedback:legacy', fb('x', 1).toJson());

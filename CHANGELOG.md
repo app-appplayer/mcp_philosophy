@@ -1,3 +1,8 @@
+## [0.1.5] - 2026-10-31 - Web compile fix
+
+### Fixed
+- `KvFeedbackHistoryStore` no longer fails to compile for the web: an integer literal larger than 2^53 in the event-time key was not representable in JavaScript. The key is unchanged for every date after the epoch; a date before the epoch is keyed as the epoch.
+
 ## [0.1.4] - 2026-10-30 - Feedback history and proposal stores, applying an approved proposal
 
 ### Added

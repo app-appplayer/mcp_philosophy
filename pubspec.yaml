@@ -1,6 +1,6 @@
 name: mcp_philosophy
 description: Value principle, judgment direction, and ethos layer for the MakeMind Knowledge System providing philosophy-based pipeline intervention and evaluation.
-version: 0.1.4
+version: 0.1.5
 homepage: https://app-appplayer.github.io/makemind
 repository: https://github.com/app-appplayer/mcp_philosophy
 issue_tracker: https://github.com/app-appplayer/mcp_philosophy/issues

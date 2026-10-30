@@ -138,9 +138,10 @@ class KvFeedbackHistoryStore implements FeedbackHistoryStore {
 
   @override
   Future<void> append(FeedbackEvent event) async {
-    final micros = event.occurredAt.toUtc().microsecondsSinceEpoch
-        .clamp(0, 9999999999999999);
-    final stamp = micros.toString().padLeft(16, '0');
+    final micros = event.occurredAt.toUtc().microsecondsSinceEpoch;
+    // Times before the epoch sort first; the 16-digit field holds every
+    // date up to the year 2255, and stays exact in JavaScript numbers.
+    final stamp = (micros < 0 ? 0 : micros).toString().padLeft(16, '0');
     await _storage.set('$_prefix$stamp:${event.id}', event.toJson());
     final keys = await _orderedKeys();
     if (keys.length <= maxEvents) return;
