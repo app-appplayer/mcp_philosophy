@@ -10,7 +10,7 @@ The value-principle, judgment-direction, and ethos layer for the MakeMind Knowle
 - **Prohibition checking** — gate actions against ethos prohibitions.
 - **Pipeline intervention** — apply philosophy guidance at pre / during / post generation stages.
 - **Tension detection** — surface cross-layer value tensions.
-- **Ethos evolution** — propose ethos changes from feedback loops.
+- **Ethos evolution** — propose ethos changes from feedback loops; keep the feedback history and the proposals in a store that outlives the process; apply an approved proposal as a new inactive ethos record.
 - **Dynamic state weighting** — integrate state weights into philosophical judgment.
 
 Contract types (`PhilosophyPort`, `EthosStorePort`, `EthosRecord`, etc.) are defined in `mcp_bundle` and re-exported here.

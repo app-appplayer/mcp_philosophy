@@ -134,6 +134,7 @@ export 'src/tension/tension_detector.dart'; // TensionDetector
 
 export 'src/evolution/feedback_event.dart'; // FeedbackEventExtensions
 export 'src/evolution/evolution_proposal.dart'; // EvolutionProposalExtensions
+export 'src/evolution/evolution_stores.dart'; // FeedbackHistoryStore, ProposalStore, in-memory and Kv implementations
 export 'src/evolution/reinforcement_engine.dart'; // ReinforcementEngine, ReinforcementPattern, PatternDirection, EvolutionRecord
 
 // =============================================================================

@@ -1,3 +1,16 @@
+## [0.1.4] - 2026-10-30 - Feedback history and proposal stores, applying an approved proposal
+
+### Added
+- `FeedbackHistoryStore` and `ProposalStore` ports with in-memory defaults (`InMemoryFeedbackHistoryStore`, `InMemoryProposalStore`) and `KvStoragePort`-backed implementations (`KvFeedbackHistoryStore`, `KvProposalStore`). `PhilosophyEngine` takes them (and `historyLimit`) as optional constructor arguments, so feedback history and generated proposals can outlive the process. Defaults keep today's behavior, except that the history is bounded.
+- Retention: `KvFeedbackHistoryStore(maxEvents: 500)` and `InMemoryFeedbackHistoryStore(maxEvents: 500)` drop the oldest events beyond the bound, and one `recent` reads at most that many values (Kv keys carry the event time, so the newest are chosen from the key list). `KvProposalStore(maxResolved: 200)` removes the oldest resolved proposals beyond the bound; `pending` and `approved` proposals are never removed.
+- `PhilosophyEngine.applyProposal(id, {approvedBy})`: applies a human-approved `valuePriority` reinforce/weaken proposal as a new inactive derived ethos record (provenance `derived`, never an edit of the source, never activated here). Other proposal kinds throw `UnsupportedError`. `rejectProposal`, `listProposals` and the `philosophy.proposal_applied` / `philosophy.proposal_rejected` events complete the cycle.
+
+### Changed (dependency floor)
+- `mcp_bundle` floor raised to `^0.4.12`.
+
+### Fixed
+- `proposeFeedback` counted each new event twice (it was in the history and added again by the analysis), so two feedback events reached the documented minimum of three. A proposal now needs three events.
+
 ## [0.1.3] - 2026-07-09 - KvEthosStoreAdapter implements EthosStoreDelete
 
 ### Added
