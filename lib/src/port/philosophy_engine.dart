@@ -151,11 +151,47 @@ class PhilosophyEngine implements PhilosophyPort {
     // stood before this event.
     final past = await _feedbackHistory.recent(limit: historyLimit);
     await _feedbackHistory.append(event);
-    final proposal =
-        _reinforcementEngine.analyzeFeedback(event, past, ethos);
-    if (proposal != null) await _proposals.save(proposal);
+    final analysed = _reinforcementEngine.analyzeFeedback(event, past, ethos);
+    if (analysed == null) return null;
+
+    // One open proposal per target: fresh evidence for a change a person has
+    // not decided yet updates that proposal instead of adding another.
+    final open = await _proposals.list(
+        status: ProposalStatus.pending, ethosId: analysed.ethosId);
+    EvolutionProposal? existing;
+    for (final p in open) {
+      if (p.type == analysed.type &&
+          p.targetComponentType == analysed.targetComponentType &&
+          p.targetComponentId == analysed.targetComponentId) {
+        existing = p;
+        break;
+      }
+    }
+
+    final proposal = EvolutionProposal(
+      id: existing?.id ?? analysed.id,
+      ethosId: analysed.ethosId,
+      type: analysed.type,
+      targetComponentId: analysed.targetComponentId,
+      targetComponentType: analysed.targetComponentType,
+      description: analysed.description,
+      rationale: analysed.rationale,
+      supportingFeedbackIds: [
+        ...?existing?.supportingFeedbackIds,
+        ...analysed.supportingFeedbackIds
+            .where((id) => !(existing?.supportingFeedbackIds.contains(id) ?? false)),
+        if (!(existing?.supportingFeedbackIds.contains(event.id) ?? false))
+          event.id,
+      ],
+      confidence: analysed.confidence,
+      proposedChange: analysed.proposedChange,
+      status: ProposalStatus.pending,
+      proposedAt: existing?.proposedAt ?? analysed.proposedAt,
+    );
+    await _proposals.save(proposal);
+
     final events = _events;
-    if (proposal != null && events != null) {
+    if (existing == null && events != null) {
       await events.publish(PortEvent(
         type: _feedbackProposedEventType,
         payload: {

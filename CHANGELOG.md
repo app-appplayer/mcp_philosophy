@@ -1,3 +1,9 @@
+## [0.1.6] - 2026-11-01 - One open proposal per target
+
+### Fixed
+- `PhilosophyEngine.proposeFeedback` added a new `pending` proposal for every feedback event while a pattern held, so one unresolved change piled up as many proposals. When a `pending` proposal for the same ethos, type and target already exists it is updated in place (id and `proposedAt` kept; rationale, confidence and change refreshed; the event id added to `supportingFeedbackIds`), and `philosophy.feedback_proposed` is published only when a proposal is created. Approved, rejected and applied proposals are not matched, so evidence that arrives after a decision opens a new `pending` proposal.
+- A new proposal's `supportingFeedbackIds` now holds the triggering event id (it was always empty).
+
 ## [0.1.5] - 2026-10-31 - Web compile fix
 
 ### Fixed
