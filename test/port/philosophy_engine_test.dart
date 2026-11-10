@@ -164,7 +164,8 @@ void main() {
       expect(() => engine.getEthos(), throwsStateError);
     });
 
-    test('TC-163: getEthos throws StateError when active id points to a missing record',
+    test(
+        'TC-163: getEthos throws StateError when active id points to a missing record',
         () async {
       ethosStore.forceActiveId('does-not-exist');
       final engine = PhilosophyEngine(ethosStore: ethosStore);
@@ -215,7 +216,8 @@ void main() {
       expect(result, isA<InterventionResult>());
     });
 
-    test('TC-168: detectTensions(MultiLayerContext) caller-supplied entry point works against the active ethos',
+    test(
+        'TC-168: detectTensions(MultiLayerContext) caller-supplied entry point works against the active ethos',
         () async {
       final engine = PhilosophyEngine(ethosStore: ethosStore);
       final tensions = await engine.detectTensions(
@@ -226,27 +228,26 @@ void main() {
 
     // -------- Entity-based overloads --------
 
-    test('TC-169: detectTensionsForEntity queries FactsPort with the correct FactQuery',
+    test(
+        'TC-169: detectTensionsForEntity queries FactsPort with the correct FactQuery',
         () async {
       final facts = RecordingFactsPort();
-      final engine =
-          PhilosophyEngine(ethosStore: ethosStore, facts: facts);
-      await engine.detectTensionsForEntity('student-42',
-          workspaceId: 'ws-1');
+      final engine = PhilosophyEngine(ethosStore: ethosStore, facts: facts);
+      await engine.detectTensionsForEntity('student-42', workspaceId: 'ws-1');
       expect(facts.callCount, 1);
       expect(facts.lastQuery!.workspaceId, 'ws-1');
       expect(facts.lastQuery!.entityId, 'student-42');
     });
 
-    test('TC-170: detectTensionsForEntity derives knowledgeProvenance from real fact content (not only counts)',
+    test(
+        'TC-170: detectTensionsForEntity derives knowledgeProvenance from real fact content (not only counts)',
         () async {
       final records = [
         _testFactRecord(id: 'f1', confidence: 0.1),
         _testFactRecord(id: 'f2', confidence: 0.2),
       ];
       final facts = RecordingFactsPort(response: records);
-      final engine =
-          PhilosophyEngine(ethosStore: ethosStore, facts: facts);
+      final engine = PhilosophyEngine(ethosStore: ethosStore, facts: facts);
       final tensions = await engine.detectTensionsForEntity('student-42',
           workspaceId: 'ws-1');
       // Low avg confidence (0.15) → trust_score < 0.3 → knowledge-layer tension fires
@@ -259,23 +260,23 @@ void main() {
       );
     });
 
-    test('TC-171: detectTensionsForEntity returns List<Tension> from TensionDetector',
+    test(
+        'TC-171: detectTensionsForEntity returns List<Tension> from TensionDetector',
         () async {
       final facts = RecordingFactsPort(
         response: [_testFactRecord(confidence: 0.95)],
       );
-      final engine =
-          PhilosophyEngine(ethosStore: ethosStore, facts: facts);
+      final engine = PhilosophyEngine(ethosStore: ethosStore, facts: facts);
       final tensions = await engine.detectTensionsForEntity('student-42',
           workspaceId: 'ws-1');
       expect(tensions, isA<List<Tension>>());
     });
 
-    test('TC-172: detectTensionsForEntity returns empty list when FactsPort yields no records',
+    test(
+        'TC-172: detectTensionsForEntity returns empty list when FactsPort yields no records',
         () async {
       final facts = RecordingFactsPort();
-      final engine =
-          PhilosophyEngine(ethosStore: ethosStore, facts: facts);
+      final engine = PhilosophyEngine(ethosStore: ethosStore, facts: facts);
       final tensions = await engine.detectTensionsForEntity('student-42',
           workspaceId: 'ws-1');
       // Empty records → trust_score == 0.0 → still fires the low-trust tension
@@ -283,23 +284,23 @@ void main() {
       expect(tensions, isA<List<Tension>>());
     });
 
-    test('TC-173: detectTensionsForEntity throws StateError when FactsPort is not injected',
+    test(
+        'TC-173: detectTensionsForEntity throws StateError when FactsPort is not injected',
         () async {
       final engine = PhilosophyEngine(ethosStore: ethosStore);
       expect(
-        () => engine.detectTensionsForEntity('student-42',
-            workspaceId: 'ws-1'),
+        () => engine.detectTensionsForEntity('student-42', workspaceId: 'ws-1'),
         throwsStateError,
       );
     });
 
-    test('TC-174: checkProhibitionsForEntity merges entity facts into context and delegates',
+    test(
+        'TC-174: checkProhibitionsForEntity merges entity facts into context and delegates',
         () async {
       final facts = RecordingFactsPort(
         response: [_testFactRecord(confidence: 0.95)],
       );
-      final engine =
-          PhilosophyEngine(ethosStore: ethosStore, facts: facts);
+      final engine = PhilosophyEngine(ethosStore: ethosStore, facts: facts);
       final result = await engine.checkProhibitionsForEntity(
         'student-42',
         ProhibitionCheckRequest(
@@ -312,11 +313,11 @@ void main() {
       expect(facts.callCount, 1);
     });
 
-    test('TC-175: checkProhibitionsForEntity throws ArgumentError for invalid request',
+    test(
+        'TC-175: checkProhibitionsForEntity throws ArgumentError for invalid request',
         () async {
       final facts = RecordingFactsPort();
-      final engine =
-          PhilosophyEngine(ethosStore: ethosStore, facts: facts);
+      final engine = PhilosophyEngine(ethosStore: ethosStore, facts: facts);
       expect(
         () => engine.checkProhibitionsForEntity(
           'student-42',
@@ -327,7 +328,8 @@ void main() {
       );
     });
 
-    test('TC-176: checkProhibitionsForEntity throws StateError when FactsPort is not injected',
+    test(
+        'TC-176: checkProhibitionsForEntity throws StateError when FactsPort is not injected',
         () async {
       final engine = PhilosophyEngine(ethosStore: ethosStore);
       expect(
@@ -340,15 +342,15 @@ void main() {
       );
     });
 
-    test('TC-177: conformance — engine.detectTensionsForEntity and engine.detectTensions(MultiLayerContext) produce equivalent results for the same facts',
+    test(
+        'TC-177: conformance — engine.detectTensionsForEntity and engine.detectTensions(MultiLayerContext) produce equivalent results for the same facts',
         () async {
       final records = [
         _testFactRecord(id: 'f1', confidence: 0.1),
         _testFactRecord(id: 'f2', confidence: 0.15),
       ];
       final facts = RecordingFactsPort(response: records);
-      final engine =
-          PhilosophyEngine(ethosStore: ethosStore, facts: facts);
+      final engine = PhilosophyEngine(ethosStore: ethosStore, facts: facts);
 
       final entityResult = await engine.detectTensionsForEntity('student-42',
           workspaceId: 'ws-1');
@@ -370,11 +372,11 @@ void main() {
 
     // -------- Feedback event emission --------
 
-    test('TC-178: proposeFeedback emits philosophy.feedback_proposed when proposal is non-null',
+    test(
+        'TC-178: proposeFeedback emits philosophy.feedback_proposed when proposal is non-null',
         () async {
       final events = RecordingEventPort();
-      final engine =
-          PhilosophyEngine(ethosStore: ethosStore, events: events);
+      final engine = PhilosophyEngine(ethosStore: ethosStore, events: events);
 
       // Drive enough feedback through to coax a non-null proposal.
       EvolutionProposal? lastProposal;
@@ -402,14 +404,14 @@ void main() {
     test('TC-179: proposeFeedback does not emit an event when proposal is null',
         () async {
       final events = RecordingEventPort();
-      final engine =
-          PhilosophyEngine(ethosStore: ethosStore, events: events);
+      final engine = PhilosophyEngine(ethosStore: ethosStore, events: events);
       final result = await engine.proposeFeedback(testFeedbackEvent());
       expect(result, isNull);
       expect(events.published, isEmpty);
     });
 
-    test('TC-180: proposeFeedback works silently when EventPort was not injected',
+    test(
+        'TC-180: proposeFeedback works silently when EventPort was not injected',
         () async {
       final engine = PhilosophyEngine(ethosStore: ethosStore);
       final result = await engine.proposeFeedback(testFeedbackEvent());

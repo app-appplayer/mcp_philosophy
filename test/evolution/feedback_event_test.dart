@@ -74,8 +74,8 @@ void main() {
     });
 
     test('validate() throws ArgumentError when actionId is empty', () {
-      expect(
-          () => testFeedbackEvent(actionId: '').validate(), throwsArgumentError);
+      expect(() => testFeedbackEvent(actionId: '').validate(),
+          throwsArgumentError);
     });
 
     test('validate() throws ArgumentError when ethosId is empty', () {

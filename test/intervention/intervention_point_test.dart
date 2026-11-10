@@ -43,8 +43,7 @@ void main() {
     });
 
     // TC-126a: construction with empty maps succeeds (no constructor validation)
-    test('constructs with empty maps succeeds (no constructor validation)',
-        () {
+    test('constructs with empty maps succeeds (no constructor validation)', () {
       final ctx = PipelineContext(
         pipelineId: 'pipe-empty',
         currentPoint: InterventionPoint.preGeneration,

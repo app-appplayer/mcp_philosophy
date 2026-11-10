@@ -230,8 +230,7 @@ void main() {
         );
 
         expect(merged.valuePriorities, hasLength(2));
-        final ranks =
-            merged.valuePriorities.map((vp) => vp.rank).toSet();
+        final ranks = merged.valuePriorities.map((vp) => vp.rank).toSet();
         expect(ranks.length, 2);
       });
 
@@ -388,8 +387,7 @@ void main() {
     // TC-051b
     test('fromString returns correct enum value', () {
       expect(ConflictStrategy.fromString('merge'), ConflictStrategy.merge);
-      expect(
-          ConflictStrategy.fromString('reject'), ConflictStrategy.reject);
+      expect(ConflictStrategy.fromString('reject'), ConflictStrategy.reject);
       expect(ConflictStrategy.fromString('preferHigher'),
           ConflictStrategy.preferHigher);
       expect(ConflictStrategy.fromString('preferLower'),
@@ -405,8 +403,7 @@ void main() {
     });
 
     // TC-051f: case-sensitive (mixed case returns unknown)
-    test('fromString is case-sensitive and returns unknown for mixed case',
-        () {
+    test('fromString is case-sensitive and returns unknown for mixed case', () {
       expect(ConflictStrategy.fromString('Merge'), ConflictStrategy.unknown);
       expect(ConflictStrategy.fromString('MERGE'), ConflictStrategy.unknown);
     });

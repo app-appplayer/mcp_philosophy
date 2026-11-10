@@ -1,3 +1,11 @@
+## [0.1.7] - 2026-11-10 - No proposal that cannot move
+
+### Fixed
+- `ReinforcementEngine.analyzeFeedback` (and so `PhilosophyEngine.proposeFeedback`) proposed `reinforce` for a value priority already ranked first and `weaken` for one ranked last. A value moves one rank per proposal, so such a proposal had nowhere to go and `applyProposal` refused it after a person had approved it (`StateError: ... already at the end`). No proposal is made for such a pattern now; the feedback still enters the history. `applyProposal` keeps refusing a hand-made proposal that cannot move.
+
+### Changed (dependency)
+- `mcp_bundle` floor `^0.4.14` (the current release).
+
 ## [0.1.6] - 2026-11-01 - One open proposal per target
 
 ### Fixed

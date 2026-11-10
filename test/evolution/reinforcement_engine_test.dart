@@ -8,6 +8,14 @@ import '../test_helpers.dart';
 void main() {
   const engine = ReinforcementEngine();
 
+  // An ethos where the default target `vp-1` sits in the middle, so both a
+  // reinforce and a weaken proposal have somewhere to go.
+  final movable = testEthos(valuePriorities: [
+    testValuePriority(id: 'vp-0', rank: 1),
+    testValuePriority(id: 'vp-1', rank: 2),
+    testValuePriority(id: 'vp-2', rank: 3),
+  ]);
+
   List<FeedbackEvent> makeHistory(List<double> scores) {
     return scores
         .asMap()
@@ -16,8 +24,9 @@ void main() {
               id: 'fb-${e.key}',
               actionId: 'act-${e.key}',
               outcomeScore: e.value,
-              outcome:
-                  e.value > 0 ? FeedbackOutcome.positive : FeedbackOutcome.negative,
+              outcome: e.value > 0
+                  ? FeedbackOutcome.positive
+                  : FeedbackOutcome.negative,
             ))
         .toList();
   }
@@ -27,7 +36,7 @@ void main() {
       final event = testFeedbackEvent(id: 'fb-new');
       final history = makeHistory([0.8]);
 
-      final result = engine.analyzeFeedback(event, history, testEthos());
+      final result = engine.analyzeFeedback(event, history, movable);
       expect(result, isNull);
     });
 
@@ -40,7 +49,7 @@ void main() {
       );
       final history = makeHistory([0.1, -0.1, 0.1]);
 
-      final result = engine.analyzeFeedback(event, history, testEthos());
+      final result = engine.analyzeFeedback(event, history, movable);
       expect(result, isNull);
     });
 
@@ -51,7 +60,7 @@ void main() {
       );
       final history = makeHistory([0.8, 0.7, 0.9]);
 
-      final result = engine.analyzeFeedback(event, history, testEthos());
+      final result = engine.analyzeFeedback(event, history, movable);
       expect(result, isNotNull);
       expect(result!.type, EvolutionType.reinforce);
       expect(result.status, ProposalStatus.pending);
@@ -67,7 +76,7 @@ void main() {
       );
       final history = makeHistory([-0.8, -0.85, -0.9]);
 
-      final result = engine.analyzeFeedback(event, history, testEthos());
+      final result = engine.analyzeFeedback(event, history, movable);
       expect(result, isNotNull);
       expect(result!.type, EvolutionType.weaken);
       expect(result.status, ProposalStatus.pending);
@@ -77,7 +86,7 @@ void main() {
       final event = testFeedbackEvent(id: 'fb-new', outcomeScore: 0.9);
       final history = makeHistory([0.9, 0.9, 0.9]);
 
-      final result = engine.analyzeFeedback(event, history, testEthos());
+      final result = engine.analyzeFeedback(event, history, movable);
       expect(result, isNotNull);
       expect(result!.status, ProposalStatus.pending);
     });
@@ -87,13 +96,11 @@ void main() {
 
       // Small sample
       final historySmall = makeHistory([0.8, 0.7, 0.9]);
-      final resultSmall =
-          engine.analyzeFeedback(event, historySmall, testEthos());
+      final resultSmall = engine.analyzeFeedback(event, historySmall, movable);
 
       // Large sample
       final historyLarge = makeHistory([0.8, 0.7, 0.9, 0.8, 0.7, 0.85, 0.75]);
-      final resultLarge =
-          engine.analyzeFeedback(event, historyLarge, testEthos());
+      final resultLarge = engine.analyzeFeedback(event, historyLarge, movable);
 
       if (resultSmall != null && resultLarge != null) {
         expect(resultLarge.confidence,
@@ -118,7 +125,7 @@ void main() {
           testFeedbackEvent(id: 'fb-3', actionId: 'a3', outcomeScore: 0.9),
         ];
 
-        final result = engine.analyzeFeedback(event, history, testEthos());
+        final result = engine.analyzeFeedback(event, history, movable);
 
         // Pattern strength should be ~0.632 which is >= 0.6 threshold
         expect(result, isNotNull);
@@ -128,8 +135,7 @@ void main() {
         // sampleSizeFactor = 4/10 = 0.4
         // ~0.632 * 0.8 + 0.4 * 0.2 = ~0.586
         final scores = [0.8, 0.7, 0.9, 0.6];
-        final avgScore =
-            scores.reduce((a, b) => a + b) / scores.length;
+        final avgScore = scores.reduce((a, b) => a + b) / scores.length;
         final variance = scores
                 .map((s) => math.pow(s - avgScore, 2))
                 .reduce((a, b) => a + b) /
@@ -175,7 +181,7 @@ void main() {
         ),
       ];
 
-      final result = engine.analyzeFeedback(event, history, testEthos());
+      final result = engine.analyzeFeedback(event, history, movable);
       // Should find 3 related events (fb-1, fb-3, fb-new) = exactly minFeedbackCount
       expect(result, isNotNull);
       expect(result!.type, EvolutionType.reinforce);
@@ -200,7 +206,8 @@ void main() {
     });
 
     // TC-203a: construction with out-of-range strength succeeds (no constructor validation)
-    test('construction with strength > 1.0 succeeds (no constructor validation)',
+    test(
+        'construction with strength > 1.0 succeeds (no constructor validation)',
         () {
       const pattern = ReinforcementPattern(
         componentId: 'vp-1',
@@ -231,8 +238,8 @@ void main() {
     test('fromString returns correct enum value', () {
       expect(PatternDirection.fromString('reinforcing'),
           PatternDirection.reinforcing);
-      expect(PatternDirection.fromString('weakening'),
-          PatternDirection.weakening);
+      expect(
+          PatternDirection.fromString('weakening'), PatternDirection.weakening);
       expect(PatternDirection.fromString('mixed'), PatternDirection.mixed);
     });
 
@@ -243,10 +250,10 @@ void main() {
 
     // TC-204d: fromString is case-sensitive
     test('fromString is case-sensitive (mixed case returns unknown)', () {
-      expect(PatternDirection.fromString('Reinforcing'),
-          PatternDirection.unknown);
-      expect(PatternDirection.fromString('REINFORCING'),
-          PatternDirection.unknown);
+      expect(
+          PatternDirection.fromString('Reinforcing'), PatternDirection.unknown);
+      expect(
+          PatternDirection.fromString('REINFORCING'), PatternDirection.unknown);
     });
   });
 

@@ -14,7 +14,8 @@ void main() {
     });
 
     // TC-040a: construction with empty conditions (no constructor validation)
-    test('construction with empty conditions list succeeds (no constructor validation)',
+    test(
+        'construction with empty conditions list succeeds (no constructor validation)',
         () {
       final jc = testCriterion(conditions: []);
       expect(jc.conditions, isEmpty);

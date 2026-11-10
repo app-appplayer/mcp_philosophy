@@ -28,7 +28,8 @@ void main() {
       adapter = KvEthosStoreAdapter(storage: storage);
     });
 
-    test('TC-181: putEthos then getEthos round-trips EthosRecord by id', () async {
+    test('TC-181: putEthos then getEthos round-trips EthosRecord by id',
+        () async {
       final record = _testRecord(id: 'ethos-a', name: 'A');
       await adapter.putEthos(record);
       final loaded = await adapter.getEthos('ethos-a');
@@ -44,7 +45,8 @@ void main() {
       expect(loaded, isNull);
     });
 
-    test('TC-182a: getEthos throws StateError when stored value is not a Map (corrupt record)',
+    test(
+        'TC-182a: getEthos throws StateError when stored value is not a Map (corrupt record)',
         () async {
       // Write a non-Map value directly under the adapter's key.
       await storage.set('philosophy.ethos:corrupt', 'not-a-map');
@@ -84,16 +86,19 @@ void main() {
       expect(await adapter.getActiveEthosId(), 'b');
     });
 
-    test('TC-187: activateEthos throws StateError when id is unknown', () async {
+    test('TC-187: activateEthos throws StateError when id is unknown',
+        () async {
       expect(() => adapter.activateEthos('missing'), throwsStateError);
     });
 
-    test('TC-188: getActiveEthosId returns null when no ethos has been activated',
+    test(
+        'TC-188: getActiveEthosId returns null when no ethos has been activated',
         () async {
       expect(await adapter.getActiveEthosId(), isNull);
     });
 
-    test('TC-189: respects the custom namespace constructor parameter', () async {
+    test('TC-189: respects the custom namespace constructor parameter',
+        () async {
       final custom = KvEthosStoreAdapter(
         storage: storage,
         namespace: 'tenant.alpha.ethos',
@@ -109,7 +114,8 @@ void main() {
   });
 
   group('Scenario E / F integration', () {
-    test('TC-190: Scenario E — PhilosophyEngine + KvEthosStoreAdapter end-to-end evaluate',
+    test(
+        'TC-190: Scenario E — PhilosophyEngine + KvEthosStoreAdapter end-to-end evaluate',
         () async {
       final storage = InMemoryKvStoragePort();
       final ethosStore = KvEthosStoreAdapter(storage: storage);
@@ -135,7 +141,8 @@ void main() {
       expect(loaded.valuePriorities.length, ethos.valuePriorities.length);
     });
 
-    test('TC-191: Scenario F — PhilosophyEngine + stub FactsPort detectTensionsForEntity surfaces content-derived tensions',
+    test(
+        'TC-191: Scenario F — PhilosophyEngine + stub FactsPort detectTensionsForEntity surfaces content-derived tensions',
         () async {
       final storage = InMemoryKvStoragePort();
       final ethosStore = KvEthosStoreAdapter(storage: storage);

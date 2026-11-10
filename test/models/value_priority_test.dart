@@ -18,8 +18,7 @@ void main() {
     });
 
     // TC-024a: Construction with empty id succeeds (no constructor validation)
-    test('construction with empty id succeeds (no constructor validation)',
-        () {
+    test('construction with empty id succeeds (no constructor validation)', () {
       final vp = testValuePriority(id: '');
       expect(vp.id, '');
     });

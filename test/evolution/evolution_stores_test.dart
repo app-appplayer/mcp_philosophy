@@ -119,8 +119,7 @@ void main() {
             ethosId: 'other', status: ProposalStatus.applied, minute: 3));
         expect((await store.list()).map((p) => p.id), ['p1', 'p2', 'p3']);
         expect(
-            (await store.list(status: ProposalStatus.pending))
-                .map((p) => p.id),
+            (await store.list(status: ProposalStatus.pending)).map((p) => p.id),
             ['p1', 'p2']);
         expect((await store.list(ethosId: 'other')).map((p) => p.id), ['p3']);
       });
@@ -207,10 +206,11 @@ void main() {
       final kv = InMemoryKvStoragePort();
       final store = KvProposalStore(storage: kv, maxResolved: 2);
       await store.save(prop('open1', minute: 0));
-      await store.save(prop('open2', minute: 1, status: ProposalStatus.approved));
+      await store
+          .save(prop('open2', minute: 1, status: ProposalStatus.approved));
       for (var i = 0; i < 4; i++) {
-        await store.save(
-            prop('r$i', minute: 10 + i, status: ProposalStatus.applied));
+        await store
+            .save(prop('r$i', minute: 10 + i, status: ProposalStatus.applied));
       }
       expect((await store.list()).map((p) => p.id),
           ['open1', 'open2', 'r2', 'r3']);
@@ -230,8 +230,7 @@ void main() {
     final kv = InMemoryKvStoragePort();
     await KvFeedbackHistoryStore(storage: kv).append(fb('a', 1));
     await KvProposalStore(storage: kv).save(prop('p1'));
-    expect((await KvFeedbackHistoryStore(storage: kv).recent()).single.id,
-        'a');
+    expect((await KvFeedbackHistoryStore(storage: kv).recent()).single.id, 'a');
     expect((await KvProposalStore(storage: kv).get('p1'))!.id, 'p1');
   });
 

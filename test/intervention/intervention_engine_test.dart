@@ -23,7 +23,9 @@ void main() {
             'fact-2': {'content': 'Low relevance', 'relevance': 0.1},
             'fact-3': {'content': 'Medium relevance', 'relevance': 0.6},
           },
-          skillContext: {'availableApproaches': ['a', 'b']},
+          skillContext: {
+            'availableApproaches': ['a', 'b']
+          },
           profileContext: {'currentPosture': 'neutral'},
         );
 
@@ -47,7 +49,9 @@ void main() {
           pipelineId: 'pipe-1',
           currentPoint: InterventionPoint.preGeneration,
           knowledgeRetrieved: {'risk': 'high'},
-          skillContext: {'availableApproaches': ['conservative', 'aggressive']},
+          skillContext: {
+            'availableApproaches': ['conservative', 'aggressive']
+          },
         );
 
         final result =
@@ -184,7 +188,8 @@ void main() {
           currentPoint: InterventionPoint.unknown,
         );
 
-        final result = engine.intervene(InterventionPoint.unknown, context, ethos);
+        final result =
+            engine.intervene(InterventionPoint.unknown, context, ethos);
         expect(result.hasInterventions, isFalse);
         expect(result.modified, isFalse);
       });

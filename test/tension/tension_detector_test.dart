@@ -49,8 +49,7 @@ void main() {
         final tensions = detector.detect(ethos, context);
         expect(tensions, isNotEmpty);
         expect(
-          tensions.any((t) =>
-              t.source.opposingLayer == TensionLayer.profile),
+          tensions.any((t) => t.source.opposingLayer == TensionLayer.profile),
           isTrue,
         );
       });
@@ -65,8 +64,7 @@ void main() {
         final tensions = detector.detect(ethos, context);
         expect(tensions, isNotEmpty);
         expect(
-          tensions.any((t) =>
-              t.source.opposingLayer == TensionLayer.knowledge),
+          tensions.any((t) => t.source.opposingLayer == TensionLayer.knowledge),
           isTrue,
         );
       });
@@ -98,8 +96,7 @@ void main() {
         final tensions = detector.detect(ethos, context);
         expect(tensions, isNotEmpty);
         expect(
-          tensions.any((t) =>
-              t.source.opposingLayer == TensionLayer.state),
+          tensions.any((t) => t.source.opposingLayer == TensionLayer.state),
           isTrue,
         );
       });
@@ -228,8 +225,7 @@ void main() {
 
     // TC-147a: detect with all layers populated returns tensions from each
     group('detect integration', () {
-      test('detect with all layers populated returns multi-layer tensions',
-          () {
+      test('detect with all layers populated returns multi-layer tensions', () {
         final ethos = collaborativeEthos();
         final context = MultiLayerContext(
           philosophyContext: testContext(),

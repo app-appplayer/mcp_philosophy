@@ -13,7 +13,8 @@ void main() {
     });
 
     // TC-031a: construction with empty statement (no constructor validation)
-    test('construction with empty statement succeeds (no constructor validation)',
+    test(
+        'construction with empty statement succeeds (no constructor validation)',
         () {
       final p = testProhibition(statement: '');
       expect(p.statement, '');
@@ -85,7 +86,8 @@ void main() {
           ),
         ],
       );
-      expect(p.hasApplicableException('This is an emergency situation'), isTrue);
+      expect(
+          p.hasApplicableException('This is an emergency situation'), isTrue);
     });
 
     // TC-037b

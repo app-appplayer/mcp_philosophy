@@ -127,10 +127,9 @@ class ReinforcementEngine {
         feedback.first.judgmentCriterionId ??
         feedback.first.ethosId;
 
-    final avgScore = feedback
-            .map((e) => e.outcomeScore)
-            .reduce((a, b) => a + b) /
-        feedback.length;
+    final avgScore =
+        feedback.map((e) => e.outcomeScore).reduce((a, b) => a + b) /
+            feedback.length;
 
     final PatternDirection direction;
     if (avgScore > 0.2) {
@@ -163,7 +162,7 @@ class ReinforcementEngine {
     );
   }
 
-  EvolutionProposal _generateProposal(
+  EvolutionProposal? _generateProposal(
     FeedbackEvent trigger,
     ReinforcementPattern pattern,
     Ethos currentEthos,
@@ -172,8 +171,7 @@ class ReinforcementEngine {
     final targetId = trigger.valuePriorityId ??
         trigger.judgmentCriterionId ??
         trigger.ethosId;
-    final targetType =
-        isValuePriority ? 'valuePriority' : 'judgmentCriterion';
+    final targetType = isValuePriority ? 'valuePriority' : 'judgmentCriterion';
 
     final EvolutionType type;
     final String description;
@@ -191,9 +189,16 @@ class ReinforcementEngine {
         description = 'Refine "$targetId" ($targetType)';
     }
 
+    // A value priority moves one rank per proposal. The top value cannot be
+    // reinforced and the bottom value cannot be weakened: the pattern says
+    // the ethos already stands where the feedback points, so there is
+    // nothing to put before a reviewer.
+    if (isValuePriority && _moveHasNowhereToGo(currentEthos, targetId, type)) {
+      return null;
+    }
+
     final sampleSizeFactor = (pattern.sampleSize / 10.0).clamp(0.0, 1.0);
-    final proposalConfidence =
-        pattern.strength * 0.8 + sampleSizeFactor * 0.2;
+    final proposalConfidence = pattern.strength * 0.8 + sampleSizeFactor * 0.2;
 
     return EvolutionProposal(
       id: 'prop-${trigger.id}-${DateTime.now().millisecondsSinceEpoch}',
@@ -211,6 +216,24 @@ class ReinforcementEngine {
       ),
       status: ProposalStatus.pending,
     );
+  }
+
+  /// True when [type] would move value priority [targetId] of [ethos] past
+  /// an end of the ranking: `reinforce` on the first value or `weaken` on the
+  /// last. A value the ethos does not hold is not a move at all, so false.
+  static bool _moveHasNowhereToGo(
+    Ethos ethos,
+    String targetId,
+    EvolutionType type,
+  ) {
+    if (type != EvolutionType.reinforce && type != EvolutionType.weaken) {
+      return false;
+    }
+    final ranked = List<ValuePriority>.of(ethos.valuePriorities)
+      ..sort((a, b) => a.rank.compareTo(b.rank));
+    final at = ranked.indexWhere((v) => v.id == targetId);
+    if (at < 0) return false;
+    return type == EvolutionType.reinforce ? at == 0 : at == ranked.length - 1;
   }
 }
 
@@ -248,8 +271,8 @@ class EvolutionRecord {
     return EvolutionRecord(
       id: json['id'] as String,
       ethosId: json['ethosId'] as String,
-      proposal: EvolutionProposal.fromJson(
-          json['proposal'] as Map<String, dynamic>),
+      proposal:
+          EvolutionProposal.fromJson(json['proposal'] as Map<String, dynamic>),
       finalStatus: ProposalStatus.fromString(json['finalStatus'] as String),
       reviewerNote: json['reviewerNote'] as String?,
       recordedAt: json['recordedAt'] != null

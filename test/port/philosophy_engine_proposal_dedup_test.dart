@@ -13,8 +13,7 @@ FeedbackEvent fb(String id, String vp, int minute, {double score = 0.9}) =>
       actionId: 'a',
       ethosId: 'test-ethos-full',
       valuePriorityId: vp,
-      outcome:
-          score >= 0 ? FeedbackOutcome.positive : FeedbackOutcome.negative,
+      outcome: score >= 0 ? FeedbackOutcome.positive : FeedbackOutcome.negative,
       outcomeScore: score,
       occurredAt: testTime.add(Duration(minutes: minute)),
     );
@@ -56,16 +55,16 @@ void main() {
     );
   });
 
-  Future<EvolutionProposal> feed(String vp, int from, int to) async {
+  Future<EvolutionProposal> feed(String vp, int from, int to,
+      {double score = 0.9}) async {
     EvolutionProposal? last;
     for (var i = from; i <= to; i++) {
-      last = await engine.proposeFeedback(fb('$vp-$i', vp, i));
+      last = await engine.proposeFeedback(fb('$vp-$i', vp, i, score: score));
     }
     return last!;
   }
 
-  test('more events for the same target update the pending proposal',
-      () async {
+  test('more events for the same target update the pending proposal', () async {
     final first = await feed('vp-2', 1, 3);
     final later = await feed('vp-2', 4, 6);
 
@@ -90,7 +89,8 @@ void main() {
 
   test('a different target gets its own proposal', () async {
     await feed('vp-2', 1, 3);
-    await feed('vp-1', 1, 3);
+    // `vp-1` is ranked first, so only a weaken proposal has somewhere to go.
+    await feed('vp-1', 1, 3, score: -0.9);
     final all = await engine.listProposals();
     expect(all.map((p) => p.targetComponentId).toSet(), hasLength(2));
   });

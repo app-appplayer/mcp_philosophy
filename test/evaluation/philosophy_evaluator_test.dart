@@ -297,13 +297,10 @@ void main() {
           facts: {'risk': 'low'},
         );
 
-        final guidanceClean =
-            evaluator.evaluate(ethos, contextNoViolation);
-        final guidanceDirty =
-            evaluator.evaluate(ethos, contextWithViolation);
+        final guidanceClean = evaluator.evaluate(ethos, contextNoViolation);
+        final guidanceDirty = evaluator.evaluate(ethos, contextWithViolation);
 
-        expect(guidanceDirty.confidence,
-            lessThan(guidanceClean.confidence));
+        expect(guidanceDirty.confidence, lessThan(guidanceClean.confidence));
       });
     });
   });

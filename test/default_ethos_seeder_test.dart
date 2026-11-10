@@ -72,7 +72,8 @@ void main() {
   });
 
   group('PhilosophyEngine.initialize', () {
-    test('seeds the default ethos into an empty store when autoSeedEthos is '
+    test(
+        'seeds the default ethos into an empty store when autoSeedEthos is '
         'true (default)', () async {
       final store = FakeEthosStore();
       final engine = PhilosophyEngine(ethosStore: store);

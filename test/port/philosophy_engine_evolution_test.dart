@@ -13,8 +13,7 @@ FeedbackEvent fb(String id, String vp, double score, int minute) =>
       actionId: 'a',
       ethosId: 'test-ethos-full',
       valuePriorityId: vp,
-      outcome:
-          score >= 0 ? FeedbackOutcome.positive : FeedbackOutcome.negative,
+      outcome: score >= 0 ? FeedbackOutcome.positive : FeedbackOutcome.negative,
       outcomeScore: score,
       occurredAt: testTime.add(Duration(minutes: minute)),
     );
@@ -93,8 +92,8 @@ void main() {
       await first.proposeFeedback(fb('b', 'vp-2', 0.9, 2));
 
       final restarted = engine(history: KvFeedbackHistoryStore(storage: kv));
-      expect(await restarted.proposeFeedback(fb('c', 'vp-2', 0.9, 3)),
-          isNotNull);
+      expect(
+          await restarted.proposeFeedback(fb('c', 'vp-2', 0.9, 3)), isNotNull);
     });
 
     test('without a shared store a new engine starts empty', () async {
@@ -179,14 +178,12 @@ void main() {
       expect(await ethosStore.getActiveEthosId(), 'test-ethos-full');
     });
 
-    test('the proposal becomes applied and cannot be applied twice',
-        () async {
+    test('the proposal becomes applied and cannot be applied twice', () async {
       final e = engine();
       final p = await proposalFor(e, 'vp-2');
       await e.applyProposal(p.id, approvedBy: 'u');
       expect((await e.listProposals()).single.status, ProposalStatus.applied);
-      expect(() => e.applyProposal(p.id, approvedBy: 'u'),
-          throwsStateError);
+      expect(() => e.applyProposal(p.id, approvedBy: 'u'), throwsStateError);
     });
 
     test('weaken moves the priority down', () async {
@@ -200,8 +197,8 @@ void main() {
     test('an approver is required', () async {
       final e = engine();
       final p = await proposalFor(e, 'vp-2');
-      expect(() => e.applyProposal(p.id, approvedBy: '  '),
-          throwsArgumentError);
+      expect(
+          () => e.applyProposal(p.id, approvedBy: '  '), throwsArgumentError);
       expect((await e.listProposals()).single.status, ProposalStatus.pending);
     });
 
@@ -210,12 +207,42 @@ void main() {
           throwsStateError);
     });
 
-    test('reinforcing the top priority changes nothing and is refused',
+    test(
+        'a move with nowhere to go is not proposed: reinforce at the top, '
+        'weaken at the bottom', () async {
+      final history = InMemoryFeedbackHistoryStore();
+      final e = engine(history: history);
+      EvolutionProposal? top;
+      for (var i = 0; i < 3; i++) {
+        top = await e.proposeFeedback(fb('top-$i', 'vp-1', 0.9, i));
+      }
+      expect(top, isNull);
+      EvolutionProposal? bottom;
+      for (var i = 0; i < 3; i++) {
+        bottom = await e.proposeFeedback(fb('bot-$i', 'vp-2', -0.9, i));
+      }
+      expect(bottom, isNull);
+      expect(await e.listProposals(), isEmpty);
+      // The feedback itself is kept: history is not conditional on a
+      // proposal.
+      expect(await history.recent(limit: 10), hasLength(6));
+    });
+
+    test('a hand-made proposal that cannot move is refused, not applied',
         () async {
-      final e = engine();
-      final p = await proposalFor(e, 'vp-1');
-      expect(p.type, EvolutionType.reinforce);
-      expect(() => e.applyProposal(p.id, approvedBy: 'u'), throwsStateError);
+      final store = InMemoryProposalStore();
+      await store.save(EvolutionProposal(
+        id: 'p-top',
+        ethosId: 'test-ethos-full',
+        type: EvolutionType.reinforce,
+        targetComponentId: 'vp-1',
+        targetComponentType: 'valuePriority',
+        description: 'd',
+        rationale: 'r',
+        confidence: 0.9,
+      ));
+      final e = engine(proposals: store);
+      expect(() => e.applyProposal('p-top', approvedBy: 'u'), throwsStateError);
       expect((await e.listProposals()).single.status, ProposalStatus.pending);
     });
 
@@ -232,8 +259,8 @@ void main() {
         confidence: 0.9,
       ));
       expect(
-          () => engine(proposals: store)
-              .applyProposal('p-crit', approvedBy: 'u'),
+          () =>
+              engine(proposals: store).applyProposal('p-crit', approvedBy: 'u'),
           throwsUnsupportedError);
     });
 
@@ -251,8 +278,7 @@ void main() {
     test('marks it rejected, needs a reviewer, and closes it', () async {
       final e = engine();
       final p = await proposalFor(e, 'vp-2');
-      expect(() => e.rejectProposal(p.id, rejectedBy: ''),
-          throwsArgumentError);
+      expect(() => e.rejectProposal(p.id, rejectedBy: ''), throwsArgumentError);
       final r = await e.rejectProposal(p.id, rejectedBy: 'user:jsha');
       expect(r.status, ProposalStatus.rejected);
       expect(() => e.applyProposal(p.id, approvedBy: 'u'), throwsStateError);
